@@ -40,3 +40,47 @@ module alu (
         end
     end
 endmodule
+
+// ALU with casez - more concise version
+module alu2 (
+    output reg [7:0] F,
+    input [7:0] A,
+    input [7:0] B,
+    input [4:0] S
+);
+    
+    always @* begin
+        casez (S)
+            // Shift Operations (S[4]=0, S[3:2]=00/01)
+            5'b000?? : F = A << S[1:0];           // Shift Left
+            5'b001?? : F = A >> S[1:0];           // Shift Right
+            
+            // Rotate Left (S[4]=0, S[3:2]=10)
+            5'b01000 : F = A;                     // 0회 회전
+            5'b01001 : F = {A[6:0], A[7]};       // 1회 좌회전
+            5'b01010 : F = {A[5:0], A[7:6]};     // 2회 좌회전
+            5'b01011 : F = {A[4:0], A[7:5]};     // 3회 좌회전
+            
+            // Rotate Right (S[4]=0, S[3:2]=11)
+            5'b01100 : F = A;                     // 0회 회전
+            5'b01101 : F = {A[0], A[7:1]};       // 1회 우회전
+            5'b01110 : F = {A[1:0], A[7:2]};     // 2회 우회전
+            5'b01111 : F = {A[2:0], A[7:3]};     // 3회 우회전
+            
+            // Reset (S[4:3]=10)
+            5'b10??? : F = 0;
+            
+            // Arithmetic/Logic (S[4:3]=11)
+            5'b11000 : F = A;                     // Transfer
+            5'b11001 : F = A + B;                 // Addition
+            5'b11010 : F = A - B;                 // Subtraction
+            5'b11011 : F = -A;                    // Negation
+            5'b11100 : F = A | B;                 // OR
+            5'b11101 : F = A & B;                 // AND
+            5'b11110 : F = A ^ B;                 // XOR
+            5'b11111 : F = ~A;                    // NOT
+            
+            default  : F = 8'b0;                  // 안전장치
+        endcase
+    end
+endmodule
