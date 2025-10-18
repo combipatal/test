@@ -1,3 +1,5 @@
+//2번 
+
 module adder (
     input A,
     input B,
